@@ -164,32 +164,6 @@ async function createPost({
     }
   }
 
-// async function updatePost(id, fields={}) {
-
-
-//       const setString = Object.keys(fields).map(
-//         (key, index) => `"${ key }"=$${ index + 1 }`
-//       ).join(', ');
-    
-      
-//       if (setString.length === 0) {
-//         return;
-//       }
-    
-//       try {
-//         const { rows: [ post ] } = await client.query(`
-//           UPDATE posts
-//           SET ${ setString }
-//           WHERE id=${ id }
-//           RETURNING *;
-//         `, Object.values(fields));
-
-//       return post;
-//     } catch (error) {
-//       throw error;
-//     }
-//   }
-
 async function getAllPosts() {
     try {
       const { rows: postIds } = await client.query(
@@ -305,6 +279,13 @@ async function getPostById(postId) {
       FROM posts
       WHERE id=$1;
     `, [postId]);
+
+    if (!post) {
+      throw {
+        name: "PostNotFoundError",
+        message: "Could not find a post with that postId"
+      };
+    }
 
     const { rows: tags } = await client.query(`
       SELECT tags.*
